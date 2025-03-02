@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="description"
+        content="Deformable Neural Radiance Fields creates free-viewpoint portraits (nerfies) from casually captured videos.">
+  <meta name="keywords" content="Nerfies, D-NeRF, NeRF">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Vision-Language-Conditioned Keypoint Affordance Representation for Robotic Manipulation</title>
+
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-PYVRSFMDRL"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+
+    function gtag() {
+      dataLayer.push(arguments);
+    }
+
+    gtag('js', new Date());
+
+    gtag('config', 'G-PYVRSFMDRL');
+  </script>
+
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro"
+        rel="stylesheet">
+
+  <link rel="stylesheet" href="./static/css/bulma.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-slider.min.css">
+  <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="./static/css/index.css">
+  <link rel="icon" href="./static/images/favicon.svg">
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script defer src="./static/js/fontawesome.all.min.js"></script>
+  <script src="./static/js/bulma-carousel.min.js"></script>
+  <script src="./static/js/bulma-slider.min.js"></script>
+  <script src="./static/js/index.js"></script>
+</head>
+<body>
+
+
+<section class="hero">
+  <div class="hero-body">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered">
+        <div class="column has-text-centered">
+          <h1 class="title is-1 publication-title">Vision-Language-Conditioned Keypoint Affordance Representation for Robotic Manipulation</h1>
+          <div class="is-size-5 publication-authors">
+            <span class="author-block">
+              Sichao Liu<sup>1,2</sup>,</span>
+            <span class="author-block">
+              Chenguang Huang</a><sup>3</sup>,</span>
+            <span class="author-block">
+              Lihui Wang</a><sup>1</sup>,</span>
+            <span class="author-block">
+              Wolfram Burgard</a><sup>3</sup>,</span>
+            <span class="author-block">
+              Auke Ijspeert</a><sup>2</sup></span>
+          </div>
+
+          <div class="is-size-5 publication-authors">
+            <span class="author-block"><sup>1</sup>KTH Royal Institute of Technology, Sweden;</span>
+            <span class="author-block"><sup>2</sup>École Polytechnique Fédérale de Lausanne, Switzerland</span>
+            <span class="author-block"><sup>3</sup>University of Technology Nuremberg, Germany</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<section class="section">
+  <div class="container is-max-desktop">
+    <!-- Abstract. -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-eight-ninths">
+        <h2 class="title is-3">Abstract</h2>
+        <div class="content has-text-justified">
+          <figure class="image is-pulled-right ml-4" style="max-width: 50%; height: auto; text-align: center;">
+            <img src="./static/images/teaser_compressed.png" alt="Teaser Image">
+            <figcaption class="is-size-6 has-text-centered">Figure 1: We propose a vision-language-conditioned keypoint affordance
+              representation for robotic manipulation. Building on previous keypoint affordance methods [1], our method introduces
+              a context-enriched prediction scheme that enables robots to reason about environmental contexts and current observations,
+              facilitating more effective manipulation tasks.</figcaption>
+          </figure>
+          <p>
+            Open-world object manipulation requires a comprehensive understanding of physical scenes and user commands to solve complex tasks. Recent advances in vision-language models (VLMs) have demonstrated capabilities in open-world manipulation problems. However, how to utilise them for fine-grained scene understanding and perform in-context reasoning for mobile manipulation remains an open challenge. For this purpose, this study explores using pre-trained VLMs to interpret scene context information and generate keypoint-based robot action affordance for mobile manipulation. Our method (KARM) enables a fine-grained semantic understanding of the robotic scene including its elements' spatial relationship in a zero-shot manner. By providing a long-horizon task instruction and the scene context to a pre-trained VLM, in-context and common-sense knowledge are combined as clues for the reasoning of logical task decomposition, serving as a key prerequisite for our keypoint-based affordance prediction pipeline. This pipeline extracts optimal manipulation points for the object of interest from observation images, which are consumed by a motion planner for planning and task execution. We design a set of real-world experiments on various manipulation tasks to showcase the superiority of the mixture of a context-based high-level task planner and a low-level robot controller compared to a non-context alternative.
+          </p>
+        </div>
+      </div>
+    </div>
+ 
+    <!--/ Abstract. -->
+
+    <!-- workfolw. -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-full">
+        <h2 class="title is-5">Overview</h2>
+    
+        <figure class="has-text-centered">
+          <img src="./static/images/overview_compressed.png" class="is-fullwidth" alt="Overview Image">
+          <figcaption class="is-size-6 has-text-centered mb-5">
+            <em>Figure 2: Overview of vision-language conditioned keypoint affordance representation for robotic manipulation (KARM).</em>
+          </figcaption>
+        </figure>
+    
+        <div class="content has-text-justified">
+          <p>
+            As shown in Figure 2, the vision-language-conditioned keypoint affordance representation method for robotic manipulation
+            includes three core components. It starts with visual observations of a robotic scene. Prompted with language instructions,
+            a pre-trained VLM (GPT-o1) is adopted for fine-grained scene descriptions, consistent elements detection, and their spatial
+            relation representation. Then, given a language-based task, GPT-o1's advanced reasoning is utilised to perform control logic
+            reasoning behind the language task and further decompose it into a sequence of optimal sub-tasks. For each sub-task and its
+            annotated images, keypoint affordance representation is proposed to generate candidate keypoints for robot manipulation (e.g.,
+            grasping), followed by selecting and chaining optimal keypoints for robot path with the prompt by GPT-o1. Finally, the high-level
+            robot path is linked to the low-level controller for task execution. The system is programmed with Python scripts that run on an
+            Ubuntu-based PC with an RTX 4090 GPU. 
+          </p>
+        </div>
+      </div>
+    </div>
+    
+   
+    <!--/ Paper video. -->
+  </div>
+</section>
+
+<section class="section">
+  <div class="container is-max-desktop">
+
+          <!-- Animation. -->
+    <div class="columns is-centered">
+      <div class="column is-full-width">
+        <h2 class="title is-3">Methodologies</h2>
+
+        <!-- fine-grained scene understanding. -->
+        <h3 class="title is-4"> Fine-grained robot representation and understanding </h3>
+        <div class="content has-text-justified">
+          <p>
+            Given the robotic scene image and language tasks, a VLM (GPT-o1) is prompted for scene
+            description with fine granularity, its constituent element detection, and their spatial
+            relation representation. The object is described by a mask, a text label and a 2D bounding box. 
+          </p>
+          </p>
+            Given the scene image, the GPT-o1 is prompted by `describe this robotic scene, identify
+            its constituent elements and their spatial relation', and it originally generates a long text
+            description of the robotic scene. Here, the simplified description with the spatial representation
+            and the highlight of the `subject'-`predicate'-`object' are `mobile robot (CL);
+            2) workbench with tools (L); 3) small wooden table with red container, possible plier and fastening tools
+            (CR); 4) engine block in wooden crate (R); 5) safety markings (F)', in which `L, R, C, and F' represent
+            `left, right, centre, and floor', respectively.
+          </p>  
+          </p>
+            Given the language task `pick and place screwdriver on the table near the engine', the `object' is
+            extracted and formulated as `screwdriver', `table', and `engine', and they are grounded with physical objects.
+            Figure shows two tables and one engine on the scene are accurately detected and localised.
+            However, the object of `screwdriver' cannot be detected. By querying the GPT-o1 with multiple scene images, it reasons the spatial relation between
+            the object with the robotic scene. The response of the GPT-o1 pinpoints that the screwdriver is on the left-side table
+            of the mobile robot. By grounding the image with the text prompt, the mask, the bounding box, and the text label of the
+            screwdriver were created (the right part of Figure).
+            </p>
+            <!-- <img src="./static/images/scene_understanding.png"/> -->
+            <figure class="has-text-centered">
+              <img src="./static/images/scene_understanding.png" style="width: 80%; height: auto;" alt="Overview Image">
+              <figcaption class="is-size-6 has-text-centered mb-5">
+                <em>Figure 3: Fine-grained robotic scene understanding, constituent element detection and their spatial relation description.</em>
+              </figcaption>
+            </figure>
+        <!-- fine-grained scene understanding. -->        
+
+        <!-- Control logic reasoning behind language tasks. -->   
+        <h3 class="title is-3">Control logic reasoning behind language tasks with LLM</h3>
+        <div class="content has-text-justified">
+          <figure class="image is-pulled-right ml-4" style="max-width: 50%; height: auto; text-align: center;">
+            <img src="./static/images/accuracy.png" alt="Teaser Image">
+            <figcaption class="is-size-6 has-text-centered">Figure 4: Success rate of each control step (subtask) executed on the physical robot,
+              compared with MOKA (superior over Code-as-Policies and VoxPoser). The subtask progress of the long-horizon tasks is normalised in the
+              range of [0,1]. We observed that with context-aware subtasks reasoning, our proposed method (KARM) outperforms state-of-the-art
+              keypoint-based affordance method MOKA.</figcaption>
+          </figure>
+          <!-- <p> Using a language prompt, the LLM is prompted to reason the control logic behind the language task, given the semantic
+            understanding of the robotic scene. These control steps can reveal how the robot finishes the task step
+            by step, and each control step is represented by a natural language description and is defined as a sub-task. By prompting
+            the LLM, it examines the fine-grained observation of the robotic scene and decomposes the language task into a sequence of
+            feasible sub-tasks. For each of the sub-tasks, the LLM is requested to provide a summary of the sub-task instructions, which
+            are composed of descriptions of the corresponding objects and robot actions. </p> -->
+            <p>Our quantitative evaluation results across 9 tasks are illustrated in Figure 4. Each task is experimented with 15 trials for success
+              rate measure where the object position is different at each trial. The robot sequentially executes subtasks generated by KARM or the
+              baseline (MOKA). A subtask is deemed successful if the robot can complete it; otherwise, it fails, and no subsequent subtasks are
+              attempted. For each language task, we record subtask success over 15 trials, normalise the results to [0,1], and then compute an
+              average success rate across all tasks (shown in Fig. \ref{accuracy_performance}). KARM demonstrates better performance at each
+              subtask of 9 language tasks, which illustrates consistent improvement by incorporating the context of control step reasoning.
+              For most of tasks, both methods show similar performance at the execution of the early step of the task, but KARM demonstrates
+              high consistency in the control steps and subtask execution compared with significant performance degradation of the baseline
+              method, and this benefits from the proposed control logic reasoning of KARM, which translates the implicit information of the 
+              language task into an explicit representation. </p>
+
+        </div>
+        
+        <!-- Control logic reasoning behind language tasks. -->   
+        <h3 class="title is-5">Keypoint affordance representation for robot manipulation</h3>
+    
+        <figure class="image is-pulled-right ml-4" style="max-width: 120%; height: 120%; text-align: center;">
+          <img src="./static/images/experimental_tasks.png" alt="experimental task">
+          <figcaption class="is-size-6 has-text-centered mb-5">
+            <em>Figure 5: Experimental tasks and results. </em>
+          </figcaption>
+        </figure>
+    
+        <div class="content has-text-justified">
+          <p>
+            The pre-trained VLM is queried to identify the appropriate part of an object for grasping rather than annotating marks generated
+            from SAM2. The parts of interest are segmented using segmentation networks to extract the segmentation masks, and then given the
+            identified parts with masks, the pre-trained VLM is employed again to produce keypoint-based affordance representation for robotic manipulation. 
+
+            Given a pre-trained VLM, it starts with the k-th subtask. The inputs the language task, the input RGB images with part-level granularity, and the 
+            depth images at the k-th subtask, the prompt to produce the keypoint-based affordance representation, and it includes grasping, contact, and target
+            keypoints, which are chained together to form a robot path. 
+          
+            Figure 5 shows Row (A) experimental setup for 9 manipulation tasks; (B) Grounding text-based objects with the robotic scene with segmentation mask, bounding box, text label and probability; (C) Keypoint-based affordance representation where candidate keypoints for grasping (G: red pots) and target (T: green pots) objects are chosen; Column represents 9 manipulation tasks, namely (1) Pick the valve cover from the black table and place it on the table near the engine; (2) Pick the screwdriver from the black table and place it on the table near the engine; (3) Place the black cube into the white box; (4) Insert the socket bit into the black hole of the wooden holder; (5) Place the plier into the red container; (6) Place a screw into the red box; (7) Place green and purple milk packets into the lunch box; (8) Move the spoon from the paper cup and place it into the bowl; (9) Use the brush to clean the plastic rag. Our method demonstrates high consistency over scene understanding, object grounding and segmentation, and keypoint affordance representation over 9 tasks.
+          
+          </p>
+        </div>
+      </div>
+    </div>
+    <!--/ Animation. -->
+  
+  </div>
+</section>
+
+<section class="section">
+  <div class="container is-max-desktop">
+
+          <!-- Animation. -->
+    <div class="columns is-centered">
+      <div class="column is-full-width">
+        <h2 class="title is-3">Experimental Results</h2>
+      
+        <!-- Interpolating. -->
+        <h3 class="title is-4">Manipulation tasks and results</h3>
+        <!-- Centered Table with Caption -->
+        <div class="has-text-centered">
+          <table class="table is-bordered is-striped" style="margin-left: auto; margin-right: auto;">
+            <caption>TABLE1 1: Results of control logic reasoning behind language tasks </caption>
+            <tbody>
+              <tr>
+                <td>Task</td>
+                <td>Grasping object</td>
+                <td>Target object</td>
+                <td>Step</td>
+                <td>Subtask/Motion direction</td>
+              </tr>
+              <tr>
+                <td>1</td>
+                <td>Valve cover</td>
+                <td>Table near engine</td>
+                <td>4.</td>
+                <td>1. Dock in front of the black table./-; 2. Pick the valve cover./Upward; 3. Move to the table near the engine./-; 4. Place the valve cover on the table./Downward.</td>
+              </tr>
+              <tr>
+                <td>2</td>
+                <td>Screwdriver</td>
+                <td>Table near engine</td>
+                <td>4.</td>
+                <td>1. Dock in front of the black table./-; 2. Pick up the screwdriver./Upward; 3. Move to the table near the engine./-; 4. Place the screwdriver on the table./Downward.</td>
+              </tr>
+              <tr>
+                <td>3</td>
+                <td>Black cube</td>
+                <td>White box</td>
+                <td>2. </td>
+                <td>1. Pick up the black cube./upward; 2. Move the black cube onto the white box./from left to right.</td>
+              </tr>
+              <tr>
+                <td>4</td>
+                <td>Socket bit</td>
+                <td>Black hole</td>
+                <td>3. </td>
+                <td>1. Pick up the socket bit./-; 2. Move the socket bit over the block./Upward; 3. Insert the socket bit into the black hole./Downward.</td>
+              </tr>
+              <tr>
+                <td>5</td>
+                <td>Plier</td>
+                <td>Red container</td>
+                <td>2.</td>
+                <td>1. Grasp the left handle of the plier./Upward; 2. Move the plier onto the red container./to the right.</td>
+              </tr>
+              <tr>
+                <td>6</td>
+                <td>Screw</td>
+                <td>Red box</td>
+                <td>2.</td>
+                <td>1. Pick up the screw./-; 2. Move the screw over the red box and place it inside./to the right.</td>
+              </tr>
+              <tr>
+                <td>7</td>
+                <td>Green milk packet & purple milk packet</td>
+                <td>Lunch box</td>
+                <td>4.</td>
+                <td>1. Pick up the green milk packet/upward; 2. Move the green milk packet onto the lunch box/to the right. 3. Pick up the purple milk packet/upward; 2. Move the purple milk packet onto the lunch box/to the right.</td>
+              </tr>
+              <tr>
+                <td>8</td>
+                <td>Spoon</td>
+                <td>Bowl</td>
+                <td>3.</td>
+                <td> 1. Pick up the spoon from the cup/upward; 2. Move the spoon over the bowl/from left to right; 3. Place the spoon into the bowl/downward.</td>
+              </tr>
+              <tr>
+                <td>9</td>
+                <td>Brush</td>
+                <td>Plastic rag</td>
+                <td>2.</td>
+                <td>1. Grasp the brush by the near-end part/-; 2. Use the brush to sweep the tag/from right to left.</td>
+              </tr>
+              
+            </tbody>
+          </table>
+        </div>
+        <br/>
+        
+        
+         <!-- Task 1. -->
+        <h3 class="title is-4">Experimental results </h3>
+        <figure class="has-text-centered">
+          <img src="./static/images/experimental_results.png" class="is-fullwidth" alt="Overview Image">
+          <figcaption class="is-size-6 has-text-centered mb-5">
+            <em>Figure 6: Experimental results of our method and baseline method.</em>
+          </figcaption>
+        </figure>
+         <div class="content has-text-justified">
+           <p>
+             Figure 6 shows the experimental results of our methods and baseline mthod: Rows (A) and (B) Optimal grasping and target keypoint selection and robot path (cyan
+             lines) of our method (KARM) and MOKA [1] (V indicates ‘viapoint’); (C) Results of our method over 9 tasks performed by
+             a robot. MOKA [1] sometimes struggled to predict consistent and logical viapoints and target points (Tasks 3, 4, 5, 8) which
+             led to failures of the manipulation. However, our method performed in-context subtask reasoning, which provided a more
+             logical subtasks decomposition for affordance prediction, which greatly improved the prediction consistency and robustness.</p>
+         </div>
+     
+        <br/>
+        <!--/ Task 1. -->
+
+        <!-- Task 1. -->
+        <h3 class="title is-4">Task 1: cross-scene manipulation (valave cover)</h3>
+        <div class="content has-text-justified">
+        </div>
+        <div class="content has-text-justified">
+          <p>
+            Language task: "Pick the valve cover from the black table and place it on the table near the engine."
+          </p>
+          </p>
+            Figure (a): Experimental setup and execution of Subtask 2; 
+            (b) Robot action: robot is instructed to grasp valve cover via grasping keypoint affordance (G1);
+            (c) Robot performing subtasks 3 and 4: robot takes valve cover to move to the table near engine, and places it on the table. 
+            (d) Object detection and segmentation;
+            (e) Candidate keypoints for object manipulation:
+            (f) Keypoint affordance-based robot path plan.
+          </p>
+        </div>
+        <div class="columns is-centered">
+          <div class="column is-half has-text-centered">
+            <img src="./static/images/valvecover.png" style="width: 86.9%;" alt="Scene Understanding"/>
+          </div>
+          <div class="column is-half has-text-centered">
+            <video id="matting-video" autoplay controls muted loop playsinline style="width: 100%;">
+              <source src="./static/videos/pickup_valve_h264.mp4" type="video/mp4">
+            </video>
+          </div>
+        </div>
+        <br/>
+        <!--/ Task 1. -->
+
+        <!-- Task 2. -->
+        <h3 class="title is-4"> Task 2: cross-scene manipulation (screwdriver)</h3>
+        <div class="content has-text-justified">
+        </div>
+        <div class="content has-text-justified">
+          <p>
+            Pick the screwdriver from the black table and place it on the table near the engine.
+          </p>
+          
+        </div>
+        <div class="columns is-centered">
+          <div class="column is-half has-text-centered">
+            <img src="./static/images/scrwdriver.png" style="width: 86.9%;" alt="Scene Understanding"/>
+          </div>
+          <div class="column is-half has-text-centered">
+            <video id="matting-video" autoplay controls muted loop playsinline style="width: 100%;">
+              <source src="./static/videos/pickup_screwdriver_h264.mp4" type="video/mp4">
+            </video>
+          </div>
+        </div>
+        <br/>
+        <!--/ Task 2. -->
+
+         <!-- Task 3. -->
+         <h3 class="title is-4">Task 3: table-top manipulation (cube: symmetric)</h3>
+         <div class="content has-text-justified">
+         </div>
+         <div class="content has-text-justified">
+           <p>
+             Place the black cube into the white box.
+           </p>
+         </div>
+         <div class="columns is-centered">
+           <div class="column is-half has-text-centered">
+             <img src="./static/images/cube.png" style="width: 86.9%;" alt="Scene Understanding"/>
+           </div>
+           <div class="column is-half has-text-centered">
+             <video id="matting-video" autoplay controls muted loop playsinline style="width: 100%;">
+               <source src="./static/videos/pickup_cube_h264.mp4" type="video/mp4">
+             </video>
+           </div>
+         </div>
+         <br/>
+         <!--/ Task 3. -->
+
+        <!-- Task 4. -->
+        <h3 class="title is-4">Task 4: Table-top manipulation (precise manipulation)</h3>
+        <div class="content has-text-justified">
+        </div>
+        <div class="content has-text-justified">
+          <p>
+            Insert the socket bit into the left-bottom first hole of the wooden holder.
+          <p>
+        </div>
+
+        <div class="columns is-centered">
+          <div class="column is-half has-text-centered">
+            <img src="./static/images/bit.png" style="width: 86.9%;" alt="Scene Understanding"/>
+          </div>
+          <div class="column is-half has-text-centered">
+            <video id="matting-video" autoplay controls muted loop playsinline style="width: 100%;">
+              <source src="./static/videos/insert_bit_success_h264.mp4" type="video/mp4">
+            </video>
+          </div>
+        </div>
+        <br/>
+        <!--/ Task 4. -->
+
+        <!-- Task 5. -->
+        <h3 class="title is-4">Task 5: table-top manipulation (plier: irregular)</h3>
+        <div class="content has-text-justified">
+        </div>
+        <div class="content has-text-justified">
+          <p>
+            Pick the plier into the red container.
+          </p>
+        </div>
+        <div class="columns is-centered">
+          <div class="column is-half has-text-centered">
+            <img src="./static/images/plier.png" style="width: 86.9%;" alt="Scene Understanding"/>
+          </div>
+          <div class="column is-half has-text-centered">
+            <video id="matting-video" autoplay controls muted loop playsinline style="width: 100%;">
+              <source src="./static/videos/pickup_piler_success_h264.mp4" type="video/mp4">
+            </video>
+          </div>
+        </div>
+        <div class="columns is-centered">
+          <div class="column is-half has-text-centered">
+            <video id="matting-video" autoplay controls muted loop playsinline style="width: 100%;">
+              <source src="./static/videos/pickup_piler_failure1_h264.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="column is-half has-text-centered">
+            <video id="matting-video" autoplay controls muted loop playsinline style="width: 100%;">
+              <source src="./static/videos/pickup_piler_failure3_h264.mp4" type="video/mp4">
+            </video>
+          </div>
+        </div>
+        <br/>
+        <!--/ Task 5. -->
+
+        <!-- Task 6. -->
+        <h3 class="title is-4">Task 6: table-top manipulation (screw: small-sized)</h3>
+        <div class="content has-text-justified">
+        </div>
+        <div class="content has-text-justified">
+          <p>
+            Place the screw into the red box.
+          </p>
+        </div>
+        <div class="columns is-centered">
+          <div class="column is-half has-text-centered">
+            <img src="./static/images/screw.png" style="width: 86.9%;" alt="Scene Understanding"/>
+          </div>
+          <div class="column is-half has-text-centered">
+            <video id="matting-video" autoplay controls muted loop playsinline style="width: 100%;">
+              <source src="./static/videos/screw.mp4" type="video/mp4">
+            </video>
+          </div>
+        </div>
+        <br/>
+        <!--/ Task 6. -->
+
+
+        <!-- Task 7. -->
+        <h3 class="title is-4"> Task 7: table-top manipulation (kitchen object)</h3>
+        <div class="content has-text-justified">
+        </div>
+        <div class="content has-text-justified">
+          <p>
+            Pickup the spoon from the cub and place it into bowel.
+          </p>
+        </div>
+        <div class="columns is-centered">
+          <div class="column is-half has-text-centered">
+            <img src="./static/images/spoon.png" style="width: 86.9%;" alt="Scene Understanding"/>
+          </div>
+          <div class="column is-half has-text-centered">
+            <video id="matting-video" autoplay controls muted loop playsinline style="width: 100%;">
+              <source src="./static/videos/pickup_spoon_h264.mp4" type="video/mp4">
+            </video>
+          </div>
+        </div>
+        <br/>
+        <!--/ Task 7. -->
+
+
+        <!-- Task 8. -->
+        <h3 class="title is-4">Task 8: table-top manipulation (kitchen object)</h3>
+        <div class="content has-text-justified">
+        </div>
+        <div class="content has-text-justified">
+          <p>
+            Using the bruch to clean the plastic rag from right to left. 
+          </p>
+        </div>
+        <div class="columns is-centered">
+          <div class="column is-half has-text-centered">
+            <img src="./static/images/brush.png" style="width: 86.9%;" alt="Scene Understanding"/>
+          </div>
+          <div class="column is-half has-text-centered">
+            <video id="matting-video" autoplay controls muted loop playsinline style="width: 100%;">
+              <source src="./static/videos/brush_success_h264.mp4" type="video/mp4">
+            </video>
+          </div>
+        </div>
+        <br/>
+        <!--/ Task 8. -->
+
+
+        <!-- Task 9. -->
+        <h3 class="title is-4"> Task 9: table-top manipulation (kitchen object)</h3>
+        <div class="content has-text-justified">
+        </div>
+        <div class="content has-text-justified">
+          <p>
+            Firstly pick and place green milk packet into the lunch box, and then pick and place purple milk packet into the lunch box. 
+          </p>
+        </div>
+        <div class="columns is-centered">
+          <div class="column is-half has-text-centered">
+            <img src="./static/images/green_milk.png" style="width: 86.9%;" alt="Scene Understanding"/>
+          </div>
+          <div class="column is-half has-text-centered">
+            <video id="matting-video" autoplay controls muted loop playsinline style="width: 100%;">
+              <source src="./static/videos/green_milk_2_h264.mp4" type="video/mp4">
+            </video>
+          </div>
+        </div>
+
+        <div class="columns is-centered">
+          <div class="column is-half has-text-centered">
+            <img src="./static/images/purple_milk.png" style="width: 86.9%;" alt="Scene Understanding"/>
+          </div>
+          <div class="column is-half has-text-centered">
+            <video id="matting-video" autoplay controls muted loop playsinline style="width: 100%;">
+              <source src="./static/videos/purple_milk.mp4" type="video/mp4">
+            </video>
+          </div>
+        </div>
+
+        <!-- <div class="columns is-centered">
+          <div class="column is-half has-text-centered">
+            <video id="matting-video" autoplay controls muted loop playsinline style="width: 100%;">
+              <source src="./static/videos/green_milk_2_h264.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="column is-half has-text-centered">
+            <video id="matting-video" autoplay controls muted loop playsinline style="width: 100%;">
+              <source src="./static/videos/purple_milk.mp4" type="video/mp4">
+            </video>
+          </div>
+        </div> -->
+        <br/>
+        <!--/ Task 9. -->
+
+
+      </div>
+    </div>
+    <!--/ Animation. -->
+  
+  </div>
+</section>
+
+
+<!-- <section class="section" id="BibTeX">
+  <div class="container is-max-desktop content">
+    <h2 class="title">BibTeX</h2>
+    <pre><code>@article{liu2024vision,
+        author    = {Liu, Sichao and C and Wang, Lihui and Gao, Robert X},
+        title     = {Vision AI-based human-robot collaborative assembly driven by autonomous robots},
+        journal={IROS 2025},
+        volume={73},
+        number={1},
+        pages={1--8},
+        year={2024},
+        publisher={Elsevier}
+      }</code></pre>
+  </div>
+</section> -->
+
+
+<!-- <footer class="footer">
+  <div class="container">
+    <div class="content has-text-centered">
+      <a class="icon-link"
+         href="./static/videos/nerfies_paper.pdf">
+        <i class="fas fa-file-pdf"></i>
+      </a>
+      <a class="icon-link" href="https://github.com/keunhong" class="external-link" disabled>
+        <i class="fab fa-github"></i>
+      </a>
+    </div>
+    <div class="columns is-centered">
+      <div class="column is-8">
+        <div class="content">
+          <p>
+            This website is licensed under a <a rel="license"
+                                                href="http://creativecommons.org/licenses/by-sa/4.0/">Creative
+            Commons Attribution-ShareAlike 4.0 International License</a>.
+          </p>
+          <p>
+            This means you are free to borrow the <a
+              href="https://github.com/nerfies/nerfies.github.io">source code</a> of this website,
+            we just ask that you link back to this page in the footer.
+            Please remember to remove the analytics code included in the header of the website which
+            you do not want on your website.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer> -->
+
+</body>
+</html>
